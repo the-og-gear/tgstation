@@ -173,7 +173,12 @@
 	var/inserted = insert_item(held_item, stack_amt = requested_amount, breakdown_flags= mat_container_flags)
 	if(inserted)
 		to_chat(user, span_notice("You insert a material total of [inserted] into [parent]."))
-		qdel(held_item)
+		if(isstack(held_item) && inserted < get_item_material_amount(held_item, mat_container_flags))
+			var/obj/item/stack/item_stack = held_item
+			item_stack.amount -= requested_amount
+			user.put_in_active_hand(item_stack)
+		else
+			qdel(held_item)
 		if(after_insert)
 			after_insert.Invoke(held_item, last_inserted_id, inserted)
 	else if(held_item == active_held)
@@ -186,11 +191,16 @@
 
 	multiplier = CEILING(multiplier, 0.01)
 
+	var/obj/item/stack/item_stack = I
 	var/material_amount = get_item_material_amount(I, breakdown_flags)
+	if (item_stack && stack_amt)
+		var/single_sheet_amount = round(material_amount / item_stack.amount)
+		material_amount = single_sheet_amount * stack_amt // stack_amt is actually the number of sheets, not the amount of material to insert
+
 	if(!material_amount || !has_space(material_amount))
 		return FALSE
 
-	last_inserted_id = insert_item_materials(I, multiplier, breakdown_flags)
+	last_inserted_id = insert_item_materials((item_stack ? item_stack : I), multiplier, breakdown_flags)
 	return material_amount
 
 /**
