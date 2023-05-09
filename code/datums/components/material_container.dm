@@ -167,7 +167,7 @@
 			return
 		if(parent != current_parent || user.get_active_held_item() != active_held)
 			return
-		var/obj/item/stack/new_stack = item_stack.split_stack(null, item_stack.amount - requested_amount)
+		var/obj/item/stack/new_stack = item_stack.split_stack(user, item_stack.amount - requested_amount)
 	if(!user.temporarilyRemoveItemFromInventory(held_item))
 		to_chat(user, span_warning("[held_item] is stuck to you and cannot be placed into [parent]."))
 		return
