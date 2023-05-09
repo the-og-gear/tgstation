@@ -167,6 +167,7 @@
 			return
 		if(parent != current_parent || user.get_active_held_item() != active_held)
 			return
+		var/obj/item/stack/new_stack = item_stack.split_stack(null, item_stack.amount - requested_amount)
 	if(!user.temporarilyRemoveItemFromInventory(held_item))
 		to_chat(user, span_warning("[held_item] is stuck to you and cannot be placed into [parent]."))
 		return
@@ -180,17 +181,17 @@
 		user.put_in_active_hand(held_item)
 
 /// Proc specifically for inserting items, returns the amount of materials entered.
-/datum/component/material_container/proc/insert_item(obj/item/I, multiplier = 1, stack_amt, breakdown_flags = mat_container_flags)
-	if(QDELETED(I))
+/datum/component/material_container/proc/insert_item(obj/item/inserted_item, multiplier = 1, stack_amt, breakdown_flags = mat_container_flags)
+	if(QDELETED(inserted_item))
 		return FALSE
 
 	multiplier = CEILING(multiplier, 0.01)
 
-	var/material_amount = get_item_material_amount(I, breakdown_flags)
+	var/material_amount = get_item_material_amount(inserted_item, breakdown_flags)
 	if(!material_amount || !has_space(material_amount))
 		return FALSE
 
-	last_inserted_id = insert_item_materials(I, multiplier, breakdown_flags)
+	last_inserted_id = insert_item_materials(inserted_item, multiplier, breakdown_flags)
 	return material_amount
 
 /**
